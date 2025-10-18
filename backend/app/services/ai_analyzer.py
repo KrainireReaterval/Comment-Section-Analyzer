@@ -2,10 +2,76 @@ import openai
 from config import Config
 import json
 import logging
+from collections import Counter
+import re
 
 logger = logging.getLogger(__name__)
 
 openai.api_key = Config.OPENAI_API_KEY
+
+
+def _fallback_topic_extraction(comments_batch):
+    """
+    Fallback method for topic extraction when OpenAI API fails.
+    Uses basic keyword extraction and pattern matching.
+    """
+    if not comments_batch:
+        return {"general_labels": [], "specific_topics": [], "keywords": []}
+
+    # Combine all comments
+    all_text = " ".join(comments_batch).lower()
+
+    # Extract common words (excluding stop words)
+    stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+                  'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'been', 'be',
+                  'this', 'that', 'these', 'those', 'it', 'its', 'i', 'you', 'he', 'she',
+                  'we', 'they', 'what', 'which', 'who', 'when', 'where', 'why', 'how'}
+
+    # Extract words
+    words = re.findall(r'\b[a-z]{3,}\b', all_text)
+    filtered_words = [w for w in words if w not in stop_words]
+
+    # Count word frequencies
+    word_counts = Counter(filtered_words)
+
+    # Get top keywords
+    keywords = [word for word, count in word_counts.most_common(10)]
+
+    # Detect common labels using pattern matching
+    labels = []
+    topics = []
+
+    # Politics
+    if any(word in all_text for word in ['politic', 'president', 'election', 'government', 'trump', 'biden']):
+        labels.append('#politics')
+        if 'trump' in all_text:
+            topics.append('Donald Trump')
+        if 'biden' in all_text:
+            topics.append('Joe Biden')
+
+    # Food
+    if any(word in all_text for word in ['food', 'cook', 'recipe', 'eat', 'restaurant']):
+        labels.append('#food')
+
+    # Careers
+    if any(word in all_text for word in ['career', 'job', 'work', 'salary', 'company']):
+        labels.append('#careers')
+
+    # People
+    if any(word in all_text for word in ['people', 'person', 'human', 'celebrity']):
+        labels.append('#people')
+
+    # Technology
+    if any(word in all_text for word in ['tech', 'computer', 'software', 'phone', 'app']):
+        labels.append('#technology')
+
+    logger.info(f"Fallback extraction found {len(labels)} labels and {len(keywords)} keywords")
+
+    return {
+        "general_labels": labels[:5],  # Top 5 labels
+        "specific_topics": topics[:5],  # Top 5 topics
+        "keywords": keywords[:10]  # Top 10 keywords
+    }
 
 
 class AIAnalyzer:
@@ -88,13 +154,11 @@ Only return valid JSON, no additional text."""
 
             return {"general_labels": [], "specific_topics": [], "keywords": []}
 
-        except Exception:
-            logger.exception("AI analysis error")
-            return {
-                "general_labels": [],
-                "specific_topics": [],
-                "keywords": []
-            }
+        except Exception as e:
+            logger.exception("AI analysis error - falling back to basic extraction")
+            logger.warning(f"OpenAI API failed: {str(e)}. Using fallback method for topic extraction.")
+            # Fallback: Use basic keyword extraction when OpenAI fails
+            return _fallback_topic_extraction(comments_batch)
     
     @staticmethod
     def label_single_comment(comment_text, known_topics):
