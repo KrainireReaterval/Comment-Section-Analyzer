@@ -1,35 +1,54 @@
-# Comment-Section-Analyzer
-Scraper + sentiment analyzer + visualization, chart, form
+Draft me a markdown file that can be interpreted by AI building tool such as cursor, testsprite.
 
-Input: URL from youtube video
+We are building a web app for youtubers and youtube users. They paste URL of one video, and will be able to view a report of that video's comment section. Youtubers can also paste their youtube information and profile page in Personalization center for influence building suggestions.
 
-|
+The web app should include:
 
-Pull information from youtube comment section
+1. Comment scraper: able to pull large scale (e.g. 10k comments) data from youtube comment section.
 
-|
+automatically load comment scraper's data to comment analysis;
 
-Analyze with sentiment detector
+2. Comment analysis: API, use AI to summerize:
+    Pull basic information:
+        How many comments?
+        How long has the video posted?
+        What is the video mainly about?
+        What is the main vibe of this comment section? (e.g.0.1 if positive>50% then show positive)
+        Show the trends of comments from time scale 
+            Two perspective must include in this chart:
+            e.g.0.2.1 2018 = 10 comments,2019 = 320 comments,2020 = 1320 comments (line chart)
+            2.g.0.2.2 2018 + 10 comments,2019 + 310 comments,2020 + 1000 comments (bar chart)
 
-|  Positive, negative
+        e.g.1 in a political video, there are people talking about "democrats vs republicans", "China", "Racism", "Immigrants", "Donald Trump"  
+        e.g.2 in a cooking video, there are people talking about "love", "follow up", "hate".
+        e.g.3 in a educational video, there are people talking about "quant careers", "people in quants", "wealth"
 
-|  Cold, hot
-
-|  API integration: summary
-
-Visualization
-
-| Chart
-
-| Form
-
-| Trends
-
-| AI implemented suggestion: 
-
-        what to do to spice up the commentary
+    Label these comments by their factors:
+        e.g.3.1 "Quant people are all asian nerds." --> This commment discuss about #people, #quant, #ethinicity, #careers, #socialperformance #peopleinquant #quantcareers
+        e.g.2.1 "This is not real italian food, it's french!" --> This comment talks about #food, #foodorigin, #country, #french&italian
+        e.g.1.1 "Donald Trump is so egotistic. He being a president is no good for USA." --> This commment shows #USAPresident, #politics, #Donald Trump
         
-            (requires pre set up, such as: bakery, politics
+        The rule of labeling:
+            General rules: #food, #politics, #careers #people --> for general categorization, visualized in final output as pie chart
+            Specific rules: #peopleinquant, #Donald Trump --> if comments related to this topic takes over 25% of comment section, then include this in pie chart.
+            Sentiment analysis: One of three: #positive #negative #neutral
             
-            In application, adjust pre set in preferences where AI see your accounts(URL), your fans percentage breakdown and algorithm data(optional for better personalization), get more nuanced 2C information
+    Categorize these commments by labels:
+        What are each categories discussing about?
+            e.g.1 output should be: 
+                People in e.g.1 videos are talking about:
+                    "democrats": 1299 comments, 28% holds positive attitude, 42% holds negative attitude, 30% holds neutral attitude
+                    "republicans": 1299 comments, 72% holds positive attitude, 28% holds negative attitude
+                    "China": 82 comments, 40% holds positive attitude, 45% holds negative attitude, 15% holds neutral attitude
+                    "Racism": 190 comments, 21% holds positive attitude, 79% holds negative attitude
+                    "Immigrants": 404 comments, 23% holds positive attitude, 77% holds negative attitude
+                    "Donald Trump": : 2217 comments, 38% holds positive attitude, 62% holds negative attitude
 
+        Among each topics:
+            How many comments are positive, and how many are negative? 
+                e.g.3.1. "Quantitative analysis is a highly competitive and interesting job" vs "Quant is tiring"
+                e.g.3.2. "Quant people are intelligence and rich" vs "Quant people are all asian nerds."
+            How many and to what percentage comments are replying to each other? 
+                controversy rate = (num_positive_reply + num_negative-reply)/num_all_comments * 100%
+
+3. Visualization
