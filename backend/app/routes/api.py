@@ -237,7 +237,11 @@ def _generate_topic_statistics(video, comments):
     
     for comment in comments:
         if comment.topics_json:
-            topics = json.loads(comment.topics_json)
+            try:
+                topics = json.loads(comment.topics_json)
+            except Exception:
+                topics = []
+
             for topic in topics:
                 topic_counter[topic] += 1
                 
@@ -318,7 +322,11 @@ def _calculate_label_distribution(comments):
     
     for comment in comments:
         if comment.labels_json:
-            labels = json.loads(comment.labels_json)
+            try:
+                labels = json.loads(comment.labels_json)
+            except Exception:
+                labels = []
+
             for label in labels:
                 label_counter[label] += 1
     

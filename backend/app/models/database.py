@@ -39,7 +39,7 @@ class Video(db.Model):
             'like_count': self.like_count,
             'main_vibe': self.main_vibe,
             'vibe_score': self.vibe_score,
-            'topics': json.loads(self.topics_json) if self.topics_json else [],
+            'topics': (json.loads(self.topics_json) if self.topics_json else []),
             'analysis_complete': self.analysis_complete,
             'created_at': self.created_at.isoformat()
         }
@@ -68,6 +68,21 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def to_dict(self):
+        # safely parse stored JSON fields
+        labels = []
+        topics = []
+        try:
+            if self.labels_json:
+                labels = json.loads(self.labels_json)
+        except Exception:
+            labels = []
+
+        try:
+            if self.topics_json:
+                topics = json.loads(self.topics_json)
+        except Exception:
+            topics = []
+
         return {
             'id': self.id,
             'comment_id': self.comment_id,
@@ -80,8 +95,8 @@ class Comment(db.Model):
             'sentiment': self.sentiment,
             'sentiment_score': self.sentiment_score,
             'category': self.category,
-            'labels': json.loads(self.labels_json) if self.labels_json else [],
-            'topics': json.loads(self.topics_json) if self.topics_json else [],
+            'labels': labels,
+            'topics': topics,
             'created_at': self.created_at.isoformat()
         }
 

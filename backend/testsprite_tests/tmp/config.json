@@ -1,0 +1,14 @@
+{
+  "status": "init",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:4173",
+  "backendAuthType": "public",
+  "executionArgs": {
+    "projectName": "Comment-Section-Analyzer",
+    "projectPath": "/Users/wangtian/Comment-Section-Analyzer/backend",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {}
+  }
+}

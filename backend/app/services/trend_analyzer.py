@@ -62,13 +62,13 @@ class TrendAnalyzer:
             return 0.0
         
         total_comments = len(all_comments)
-        
-        # 统计回复数超过阈值的评论
+
+        # 统计回复数超过阈值的评论，使用 getattr 保证健壮性
         high_reply_comments = sum(
-            1 for c in all_comments 
-            if c.reply_count >= controversy_threshold
+            1 for c in all_comments
+            if getattr(c, 'reply_count', 0) >= controversy_threshold
         )
-        
-        controversy = (high_reply_comments / total_comments * 100) if total_comments > 0 else 0
-        
+
+        controversy = (high_reply_comments / total_comments * 100) if total_comments > 0 else 0.0
+
         return controversy

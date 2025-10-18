@@ -1,0 +1,75 @@
+{
+  "tech_stack": [
+    "Python 3.x",
+    "Flask 3.x",
+    "Flask-CORS",
+    "Flask-SQLAlchemy / SQLAlchemy",
+    "SQLite (default) or other SQL database via SQLALCHEMY_DATABASE_URI",
+    "Redis (optional for task queues)",
+    "OpenAI / google-api-python-client for external services"
+  ],
+  "features": [
+    {
+      "name": "Health Check",
+      "description": "Simple GET health endpoint to verify API is running",
+      "files": ["app/routes/api.py"],
+      "api_doc": {
+        "paths": {
+          "/api/health": {
+            "get": {
+              "summary": "Health check",
+              "responses": {
+                "200": {
+                  "description": "Service status",
+                  "content": {
+                    "application/json": {
+                      "example": {"status": "ok", "message": "YouTube Comment Analyzer API is running"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Analyze Video",
+      "description": "POST endpoint to analyze a YouTube video: scrape comments, sentiment analysis, AI topic extraction, labeling, trend analysis, and save results",
+      "files": ["app/routes/api.py", "app/services/youtube_scraper.py", "app/services/sentiment_analyzer.py", "app/services/ai_analyzer.py", "app/models"],
+      "api_doc": {
+        "paths": {
+          "/api/analyze": {
+            "post": {
+              "summary": "Analyze a video",
+              "requestBody": {
+                "required": true,
+                "content": {"application/json": {"schema": {"type": "object", "properties": {"video_url": {"type": "string"}, "max_comments": {"type": "integer"}}}}}
+              },
+              "responses": {"200": {"description": "Analysis result or message"}, "400": {"description": "Bad request"}, "404": {"description": "Video not found"}}
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Get Video Report",
+      "description": "GET endpoint to fetch full analysis report for a video",
+      "files": ["app/routes/api.py", "app/services/trend_analyzer.py", "app/models"],
+      "api_doc": {
+        "paths": {"/api/video/{video_id}/report": {"get": {"parameters": [{"name": "video_id", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "Report"}, "404": {"description": "Video not found"}}}}}
+    },
+    {
+      "name": "List Videos",
+      "description": "GET endpoint to list all analyzed videos",
+      "files": ["app/routes/api.py", "app/models"],
+      "api_doc": {"paths": {"/api/videos": {"get": {"summary": "List videos", "responses": {"200": {"description": "List of videos"}}}}}
+    },
+    {
+      "name": "Controversy Stats",
+      "description": "GET endpoint to return controversy statistics for a video, based on reply thresholds",
+      "files": ["app/routes/api.py"],
+      "api_doc": {"paths": {"/api/video/{video_id}/controversy": {"get": {"parameters": [{"name": "video_id", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "Controversy data"}, "404": {"description": "Video not found"}}}}}
+    }
+  ]
+}
