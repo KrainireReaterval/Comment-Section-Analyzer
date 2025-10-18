@@ -1,0 +1,60 @@
+{
+  "tech_stack": [
+    "JavaScript/React",
+    "Python",
+    "Vite",
+    "Flask",
+    "SQLite",
+    "YouTube Data API"
+  ],
+  "features": [
+    {
+      "name": "YouTube Comment Scraper",
+      "description": "Service to fetch and analyze comments from YouTube videos",
+      "files": [
+        "backend/app/services/youtube_scraper.py",
+        "web_crawler.py"
+      ]
+    },
+    {
+      "name": "Sentiment Analysis",
+      "description": "Analyze sentiment of YouTube comments",
+      "files": [
+        "backend/app/services/sentiment_analyzer.py",
+        "backend/app/services/ai_analyzer.py",
+        "web_sentiment.py"
+      ]
+    },
+    {
+      "name": "Trend Analysis",
+      "description": "Analyze trends and patterns in comments",
+      "files": [
+        "backend/app/services/trend_analyzer.py"
+      ]
+    },
+    {
+      "name": "Frontend UI Components",
+      "description": "React components for the web interface",
+      "files": [
+        "src/components/HomePage.js",
+        "src/components/LoadingState.js",
+        "src/components/ReportPage.js",
+        "src/App.js"
+      ]
+    },
+    {
+      "name": "API Routes",
+      "description": "Backend API endpoints for the application",
+      "files": [
+        "backend/app/routes/api.py"
+      ]
+    },
+    {
+      "name": "Database Models",
+      "description": "Database models and operations",
+      "files": [
+        "backend/app/models/database.py"
+      ]
+    }
+  ]
+}
