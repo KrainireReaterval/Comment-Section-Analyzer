@@ -2,14 +2,5 @@
   "status": "commited",
   "type": "frontend",
   "scope": "codebase",
-  "localEndpoint": "http://localhost:4173",
-  "executionArgs": {
-    "projectName": "Comment-Section-Analyzer",
-    "projectPath": "/Users/wangxiansen/Desktop/Comment-Section-Analyzer",
-    "testIds": [],
-    "additionalInstruction": "Focus on testing the frontend React components and their interactions",
-    "envs": {
-      "API_KEY": "sk-user-JKMf_i_tRgmR6wlDg0JoJsHGPXO6bsV-s0W9xJ_yJZw7nYICq2Pu867tSFbjxFbO9nAX_NJekGCN2UE4V6lPLVf2NqKInDCtbU2VHheTdtgb06ydqcKO_3D9OyM6LgKhk4Ysk-user-JKMf_i_tRgmR6wlDg0JoJsHGPXO6bsV-s0W9xJ_yJZw7nYICq2Pu867tSFbjxFbO9nAX_NJekGCN2UE4V6lPLVf2NqKInDCtbU2VHheTdtgb06ydqcKO_3D9OyM6LgKhk4Y"
-    }
-  }
+  "localEndpoint": "http://localhost:8080"
 }

@@ -1,60 +1,108 @@
 {
   "tech_stack": [
-    "JavaScript/React",
+    "HTML",
+    "JavaScript (Vanilla)",
     "Python",
-    "Vite",
     "Flask",
-    "SQLite",
-    "YouTube Data API"
+    "SQLAlchemy",
+    "Tailwind CSS",
+    "Chart.js",
+    "Lucide Icons",
+    "YouTube Data API",
+    "OpenAI API",
+    "Redis",
+    "SQLite"
   ],
   "features": [
     {
-      "name": "YouTube Comment Scraper",
-      "description": "Service to fetch and analyze comments from YouTube videos",
-      "files": [
-        "backend/app/services/youtube_scraper.py",
-        "web_crawler.py"
-      ]
+      "name": "Home Page with Analysis Form",
+      "description": "Main landing page with a form to input YouTube video URL, creator URL (optional), and max comments selection. Includes hero section with feature highlights and responsive design.",
+      "files": ["index.html"]
     },
     {
-      "name": "Sentiment Analysis",
-      "description": "Analyze sentiment of YouTube comments",
-      "files": [
-        "backend/app/services/sentiment_analyzer.py",
-        "backend/app/services/ai_analyzer.py",
-        "web_sentiment.py"
-      ]
+      "name": "YouTube URL Validation",
+      "description": "Validates YouTube video URLs and extracts video IDs from various YouTube URL formats (youtube.com/watch?v= and youtu.be/).",
+      "files": ["index.html"]
+    },
+    {
+      "name": "Video Analysis API Integration",
+      "description": "Frontend function to call backend API to analyze YouTube video comments. Sends video URL and max comments parameters to the backend for processing.",
+      "files": ["index.html"]
+    },
+    {
+      "name": "Loading Page with Progress Indicator",
+      "description": "Displays animated loading screen with progress bar while comment analysis is being processed. Shows status messages and animated brain icon.",
+      "files": ["index.html"]
+    },
+    {
+      "name": "Analysis Report Page",
+      "description": "Comprehensive report page displaying video information, sentiment analysis results, topic distribution, and sample comments. Includes interactive charts and visualizations.",
+      "files": ["index.html"]
+    },
+    {
+      "name": "Sentiment Distribution Chart",
+      "description": "Doughnut chart visualization showing the distribution of positive, negative, and neutral sentiments across analyzed comments using Chart.js.",
+      "files": ["index.html"]
+    },
+    {
+      "name": "Report Download Functionality",
+      "description": "Allows users to download the analysis report as a plain text file with all key metrics, sentiment distribution, and topic breakdown.",
+      "files": ["index.html"]
+    },
+    {
+      "name": "State Management",
+      "description": "Global application state management handling current page, analysis data, loading state, and error handling.",
+      "files": ["index.html"]
+    },
+    {
+      "name": "Backend API Routes",
+      "description": "Flask API endpoints for analyzing videos and retrieving video reports. Handles POST requests for analysis and GET requests for reports.",
+      "files": ["backend/app/routes/api.py"]
+    },
+    {
+      "name": "YouTube Comment Scraper",
+      "description": "Service to scrape YouTube comments using YouTube Data API. Fetches video metadata, comments, and replies with pagination support.",
+      "files": ["backend/app/services/youtube_scraper.py"]
+    },
+    {
+      "name": "AI-Powered Sentiment Analysis",
+      "description": "Uses OpenAI API to perform advanced sentiment analysis on comments, extracting emotions, topics, and controversy detection.",
+      "files": ["backend/app/services/ai_analyzer.py"]
+    },
+    {
+      "name": "Basic Sentiment Analyzer",
+      "description": "Provides basic sentiment classification (positive, negative, neutral) for comments as a fallback or quick analysis option.",
+      "files": ["backend/app/services/sentiment_analyzer.py"]
     },
     {
       "name": "Trend Analysis",
-      "description": "Analyze trends and patterns in comments",
-      "files": [
-        "backend/app/services/trend_analyzer.py"
-      ]
+      "description": "Analyzes comment trends over time, identifying patterns in sentiment and topic evolution throughout the comment section.",
+      "files": ["backend/app/services/trend_analyzer.py"]
     },
     {
-      "name": "Frontend UI Components",
-      "description": "React components for the web interface",
-      "files": [
-        "src/components/HomePage.js",
-        "src/components/LoadingState.js",
-        "src/components/ReportPage.js",
-        "src/App.js"
-      ]
+      "name": "Number Formatting Utility",
+      "description": "Formats large numbers into readable format (K for thousands, M for millions) for display in the UI.",
+      "files": ["index.html"]
     },
     {
-      "name": "API Routes",
-      "description": "Backend API endpoints for the application",
-      "files": [
-        "backend/app/routes/api.py"
-      ]
+      "name": "Date Formatting Utility",
+      "description": "Converts ISO date strings into human-readable format for displaying video publication dates and comment timestamps.",
+      "files": ["index.html"]
+    },
+    {
+      "name": "Frontend HTTP Server",
+      "description": "Simple Python HTTP server with CORS support to serve the frontend HTML application on port 8080.",
+      "files": ["start_server.py"]
     },
     {
       "name": "Database Models",
-      "description": "Database models and operations",
-      "files": [
-        "backend/app/models/database.py"
-      ]
+      "description": "SQLAlchemy ORM models for storing video data, comments, analysis results, and user sessions in SQLite database.",
+      "files": ["backend/app/models"]
+    },
+    {
+      "name": "Error Handling and Validation",
+      "description": "Comprehensive error handling for invalid URLs, API failures, and network errors with user-friendly error messages displayed in the UI.",
+      "files": ["index.html"]
     }
   ]
 }

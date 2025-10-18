@@ -1,0 +1,433 @@
+[
+  {
+    "id": "TC001",
+    "title": "Validate supported YouTube video URL formats",
+    "description": "Verify that the system correctly validates and extracts video IDs from multiple YouTube URL formats including standard watch URLs and short URLs.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to homepage URL input form"
+      },
+      {
+        "type": "action",
+        "description": "Input a valid standard YouTube URL (e.g. 'https://www.youtube.com/watch?v=abcdefghijk')"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that the URL is accepted and the video ID 'abcdefghijk' is extracted"
+      },
+      {
+        "type": "action",
+        "description": "Input a valid short YouTube URL (e.g. 'https://youtu.be/abcdefghijk')"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that the URL is accepted and the video ID 'abcdefghijk' is extracted"
+      },
+      {
+        "type": "action",
+        "description": "Input a valid YouTube URL with additional parameters (e.g. 'https://www.youtube.com/watch?v=abcdefghijk&list=xyz')"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that the video ID 'abcdefghijk' is correctly extracted ignoring extra query parameters"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Reject invalid YouTube video URLs",
+    "description": "Ensure the system rejects URLs that do not conform to recognized YouTube video URL formats and displays appropriate user-friendly error messages.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to homepage URL input form"
+      },
+      {
+        "type": "action",
+        "description": "Input an invalid URL string (e.g. 'https://example.com/watch?v=abcdefghijk')"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that an error message is shown indicating invalid YouTube video URL"
+      },
+      {
+        "type": "action",
+        "description": "Input a malformed URL (e.g. 'not_a_url')"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that validation fails with a proper error message"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Analyze video comments with valid input and max comments parameter",
+    "description": "Test that analysis starts successfully when valid YouTube video URL and max comments (within allowed range 500-10000) are provided.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to homepage"
+      },
+      {
+        "type": "action",
+        "description": "Input a valid YouTube video URL"
+      },
+      {
+        "type": "action",
+        "description": "Select max comments value within 500 to 10,000 (e.g 1000)"
+      },
+      {
+        "type": "action",
+        "description": "Submit the analysis form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify frontend passes valid request to backend API"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify backend accepts request and begins processing"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm UI transitions to loading page showing progress and status messages"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Enforce max comments input validation",
+    "description": "Verify that the max comments input enforces allowed range boundaries and displays validation errors accordingly.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to homepage"
+      },
+      {
+        "type": "action",
+        "description": "Input valid YouTube video URL"
+      },
+      {
+        "type": "action",
+        "description": "Select max comments value below minimum (e.g. 100)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error message indicating min allowed value (500) is shown and submission is blocked"
+      },
+      {
+        "type": "action",
+        "description": "Select max comments value above maximum (e.g. 15000)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error message indicating max allowed value (10000) is shown and submission is blocked"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Backend scrapes comments with pagination",
+    "description": "Confirm that the backend correctly scrapes up to the specified number of comments using the YouTube Data API with pagination support.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send analysis request to backend with max comments set to 2000"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that backend fetches comments in multiple paged requests per YouTube Data API guidelines"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that total comments retrieved do not exceed 2000"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that metadata and replies are also retrieved"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "AI-powered sentiment and topic analysis correctness",
+    "description": "Validate that AI analysis produces expected sentiment classifications, topic extraction, and controversy detection on a set of sample comments.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger AI sentiment analysis on sample comment dataset"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm emotions and sentiment labels correspond to comment content"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify identified main topics align with comment themes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify controversy detection highlights debated topics"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Fallback to basic sentiment classification",
+    "description": "Ensure the system falls back to basic sentiment analysis when the AI-powered analysis is unavailable or request fails, delivering quick sentiment classification.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate OpenAI API failure or interruption during analysis"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the system uses the basic sentiment analyzer instead"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify sentiment results are classified as positive, negative, or neutral"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Loading page displays progress and animation reliably",
+    "description": "Verify that during analysis load time, the loading page displays an animated progress bar, brain icon, and status messages updating appropriately.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit valid analysis request"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm loading page is displayed immediately after submission"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm animated progress bar updates in near real-time"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm brain icon animation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm status messages update correctly to reflect analysis stages"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Analysis Report page renders all key elements correctly",
+    "description": "Ensure that upon analysis completion, the report page renders video metadata, sentiment summary, topic breakdown, sample comments, and trend visualizations correctly and responsively.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Complete comment analysis process successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify video title, thumbnail, and metadata are displayed accurately"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify interactive doughnut sentiment chart is shown with correct data"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify topic distribution and trend graphs are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify sample comments with sentiment tags are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the layout adapts properly on desktop and mobile screens"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Interactive charts respond to user interactions",
+    "description": "Test that sentiment charts and trend visualizations respond correctly to user interactions such as hover, click, or filtering.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "On report page, hover over segments of the sentiment doughnut chart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify tooltip with detailed information appears"
+      },
+      {
+        "type": "action",
+        "description": "Click on a topic segment or trend line"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify charts update or filter comments accordingly"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Download analysis report as plain text",
+    "description": "Verify that users can download the analysis report which contains video info, sentiment summary, topics, trend insights and key metrics in plain text format.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger download report action on report page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a text file is generated and downloaded"
+      },
+      {
+        "type": "assertion",
+        "description": "Open the downloaded file and verify it contains all expected sections and data"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Database stores and retrieves analysis data correctly",
+    "description": "Check that analysis data including video metadata, comments, sentiment results, and analysis outputs are stored in the SQLite database and can be retrieved via backend endpoints.",
+    "category": "integration",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger a video comment analysis and complete successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Query the database for stored video and analysis record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify comments and sentiment results are correctly linked and stored"
+      },
+      {
+        "type": "action",
+        "description": "Use backend GET API to fetch the previously saved analysis report"
+      },
+      {
+        "type": "assertion",
+        "description": "Validate backend response matches the stored database record"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "API endpoints handle invalid inputs and failures gracefully",
+    "description": "Test API responses to invalid requests such as missing parameters, invalid video IDs, or backend failures, ensuring proper HTTP status codes and error messages.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send POST analysis request with missing video URL"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns 400 status and descriptive error message"
+      },
+      {
+        "type": "action",
+        "description": "Send POST analysis request with invalid video ID"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns 422 or 404 with appropriate error info"
+      },
+      {
+        "type": "action",
+        "description": "Simulate backend service failure during analysis"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns 500 status and error message"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Frontend global state management correctness",
+    "description": "Verify that the global state correctly maintains the current page, analysis results, loading status, and error info throughout the user session and that updates propagate to UI components.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform a valid analysis from homepage to report page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify global state updates to loading state during analysis"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify global state holds analysis results when report page renders"
+      },
+      {
+        "type": "action",
+        "description": "Trigger an error (e.g. invalid URL) and verify error messages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error state is set in global store and UI reflects error"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Trend analysis captures sentiment and topic evolution over time",
+    "description": "Confirm that the trend analysis module correctly processes comment data and outputs meaningful trend patterns in sentiment and topics which are accurately represented on the report page.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Run full analysis on a video with time-stamped comments spanning varied sentiments"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify trend analysis output shows temporal sentiment changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify topic trends over time are extracted and displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the trend graphs update correctly on report page"
+      }
+    ]
+  }
+]
