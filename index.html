@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Comment Section Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app"></div>
+    
+    <script>
+        // Global state management
+        let appState = {
+            currentPage: 'home',
+            analysisData: null,
+            loading: false,
+            error: null
+        };
+
+        // API configuration
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        // Utility functions
+        function isValidYouTubeURL(url) {
+            const regex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]+/;
+            return regex.test(url);
+        }
+
+        function extractVideoId(url) {
+            const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+            return match ? match[1] : null;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // API functions
+        async function analyzeVideo(videoUrl, maxComments = 1000) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        video_url: videoUrl,
+                        max_comments: maxComments
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Analysis failed');
+                }
+
+                return await response.json();
+            } catch (error) {
+                throw new Error(`API Error: ${error.message}`);
+            }
+        }
+
+        async function getVideoReport(videoId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/video/${videoId}/report`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch report');
+                }
+
+                return await response.json();
+            } catch (error) {
+                throw new Error(`API Error: ${error.message}`);
+            }
+        }
+
+        // Page components
+        function renderHomePage() {
+            return `
+                <div class="min-h-screen gradient-bg">
+                    <!-- Header -->
+                    <header class="bg-white/10 backdrop-blur-md shadow-lg sticky top-0 z-50">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div class="flex justify-between items-center py-4">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                                        <i data-lucide="bar-chart-3" class="w-5 h-5 text-purple-600"></i>
+                                    </div>
+                                    <h1 class="text-xl font-bold text-white">Comment Analyzer</h1>
+                                </div>
+                                <nav class="hidden md:flex space-x-6">
+                                    <a href="#" class="text-white/80 hover:text-white transition-colors">Features</a>
+                                    <a href="#" class="text-white/80 hover:text-white transition-colors">About</a>
+                                    <a href="#" class="text-white/80 hover:text-white transition-colors">Contact</a>
+                                </nav>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- Hero Section -->
+                    <main class="max-w-6xl mx-auto px-4 py-16">
+                        <div class="text-center mb-12">
+                            <h1 class="text-5xl md:text-6xl font-bold text-white mb-6">
+                                Analyze YouTube Comments
+                                <span class="block text-yellow-300">Like Never Before</span>
+                            </h1>
+                            <p class="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
+                                Get deep insights into your video's comment section with AI-powered sentiment analysis, 
+                                topic extraction, and trend visualization.
+                            </p>
+                        </div>
+
+                        <!-- Analysis Form -->
+                        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-8 card-shadow max-w-4xl mx-auto">
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        YouTube Video URL *
+                                    </label>
+                                    <input 
+                                        type="url" 
+                                        id="videoUrl" 
+                                        placeholder="https://www.youtube.com/watch?v=..."
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    >
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Creator Profile URL (Optional)
+                                    </label>
+                                    <input 
+                                        type="url" 
+                                        id="creatorUrl" 
+                                        placeholder="https://www.youtube.com/@channelname"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Max Comments to Analyze
+                                    </label>
+                                    <select id="maxComments" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="500">500 comments</option>
+                                        <option value="1000" selected>1,000 comments</option>
+                                        <option value="2500">2,500 comments</option>
+                                        <option value="5000">5,000 comments</option>
+                                        <option value="10000">10,000 comments</option>
+                                    </select>
+                                </div>
+
+                                <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"></div>
+
+                                <button 
+                                    onclick="startAnalysis()" 
+                                    class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-105"
+                                >
+                                    <i data-lucide="play" class="w-5 h-5 inline mr-2"></i>
+                                    Start Analysis
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Features -->
+                        <div class="mt-16 grid md:grid-cols-3 gap-8">
+                            <div class="text-center text-white">
+                                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i data-lucide="brain" class="w-8 h-8"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-2">AI-Powered Analysis</h3>
+                                <p class="text-white/80">Advanced sentiment analysis and topic extraction using machine learning</p>
+                            </div>
+                            <div class="text-center text-white">
+                                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i data-lucide="trending-up" class="w-8 h-8"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-2">Trend Visualization</h3>
+                                <p class="text-white/80">See how comments evolve over time with interactive charts</p>
+                            </div>
+                            <div class="text-center text-white">
+                                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i data-lucide="zap" class="w-8 h-8"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-2">Real-time Processing</h3>
+                                <p class="text-white/80">Get instant insights from thousands of comments</p>
+                            </div>
+                        </div>
+                    </main>
+
+                    <!-- Footer -->
+                    <footer class="bg-white/10 backdrop-blur-md text-white/80 py-8 mt-16">
+                        <div class="max-w-6xl mx-auto px-4 text-center">
+                            <p>&copy; 2025 YouTube Comment Analyzer. All rights reserved.</p>
+                        </div>
+                    </footer>
+                </div>
+            `;
+        }
+
+        function renderLoadingPage() {
+            return `
+                <div class="min-h-screen gradient-bg flex items-center justify-center">
+                    <div class="text-center text-white">
+                        <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 pulse-animation">
+                            <i data-lucide="brain" class="w-12 h-12"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold mb-4">Analyzing Comments...</h2>
+                        <p class="text-xl text-white/80 mb-8">This may take a few minutes for large comment sections</p>
+                        <div class="w-64 bg-white/20 rounded-full h-2 mx-auto">
+                            <div class="bg-yellow-300 h-2 rounded-full pulse-animation" style="width: 60%"></div>
+                        </div>
+                        <p class="text-sm text-white/60 mt-4">Processing sentiment analysis and topic extraction</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderReportPage(data) {
+            const video = data.video;
+            const summary = data.summary;
+            const topics = data.topics || [];
+            const timeTrends = data.time_trends || [];
+            const commentsSample = data.comments_sample || [];
+
+            return `
+                <div class="min-h-screen bg-gray-50">
+                    <!-- Header -->
+                    <header class="bg-white shadow-sm sticky top-0 z-50">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div class="flex justify-between items-center py-4">
+                                <div class="flex items-center space-x-4">
+                                    <button onclick="goHome()" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+                                        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                                        Back to Home
+                                    </button>
+                                    <div class="w-px h-6 bg-gray-300"></div>
+                                    <h1 class="text-xl font-bold text-gray-900">Analysis Report</h1>
+                                </div>
+                                <button onclick="downloadReport()" class="flex items-center bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                                    <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                                    Download Report
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main class="max-w-7xl mx-auto px-4 py-8">
+                        <!-- Video Info Card -->
+                        <div class="bg-white rounded-xl card-shadow p-6 mb-8 fade-in">
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <div class="md:w-1/3">
+                                    <div class="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+                                        <i data-lucide="play" class="w-12 h-12 text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="md:w-2/3">
+                                    <h2 class="text-2xl font-bold text-gray-900 mb-2">${video.title || 'Video Title'}</h2>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-purple-600">${formatNumber(video.view_count || 0)}</div>
+                                            <div class="text-sm text-gray-600">Views</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-green-600">${formatNumber(video.like_count || 0)}</div>
+                                            <div class="text-sm text-gray-600">Likes</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-blue-600">${formatNumber(video.comment_count || 0)}</div>
+                                            <div class="text-sm text-gray-600">Comments</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-orange-600">${video.duration || 'N/A'}</div>
+                                            <div class="text-sm text-gray-600">Duration</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-600">
+                                        Published: ${video.published_at ? formatDate(video.published_at) : 'N/A'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Summary -->
+                        <div class="grid md:grid-cols-3 gap-6 mb-8">
+                            <div class="bg-white rounded-xl card-shadow p-6 fade-in">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Overall Sentiment</h3>
+                                <div class="text-center">
+                                    <div class="text-4xl font-bold text-${video.main_vibe === 'positive' ? 'green' : video.main_vibe === 'negative' ? 'red' : 'gray'}-600 mb-2">
+                                        ${video.main_vibe || 'Neutral'}
+                                    </div>
+                                    <div class="text-sm text-gray-600">Score: ${video.vibe_score || 0}</div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl card-shadow p-6 fade-in">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Comments Analyzed</h3>
+                                <div class="text-center">
+                                    <div class="text-4xl font-bold text-purple-600 mb-2">${summary.total_comments_analyzed || 0}</div>
+                                    <div class="text-sm text-gray-600">Total Comments</div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl card-shadow p-6 fade-in">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Main Topics</h3>
+                                <div class="text-center">
+                                    <div class="text-4xl font-bold text-blue-600 mb-2">${topics.length}</div>
+                                    <div class="text-sm text-gray-600">Identified Topics</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sentiment Distribution Chart -->
+                        <div class="bg-white rounded-xl card-shadow p-6 mb-8 fade-in">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-6">Sentiment Distribution</h3>
+                            <div class="h-64">
+                                <canvas id="sentimentChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Topics Analysis -->
+                        ${topics.length > 0 ? `
+                        <div class="bg-white rounded-xl card-shadow p-6 mb-8 fade-in">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-6">Topic Analysis</h3>
+                            <div class="space-y-4">
+                                ${topics.slice(0, 5).map(topic => `
+                                    <div class="border border-gray-200 rounded-lg p-4">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <h4 class="font-medium text-gray-900">${topic.name}</h4>
+                                            <span class="text-sm text-gray-600">${topic.percentage}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                            <div class="bg-purple-600 h-2 rounded-full" style="width: ${topic.percentage}%"></div>
+                                        </div>
+                                        <div class="flex justify-between text-sm text-gray-600">
+                                            <span>${topic.count} comments</span>
+                                            <span>Controversy: ${topic.controversy_rate}%</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <!-- Comments Sample -->
+                        ${commentsSample.length > 0 ? `
+                        <div class="bg-white rounded-xl card-shadow p-6 fade-in">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-6">Sample Comments</h3>
+                            <div class="space-y-4 max-h-96 overflow-y-auto">
+                                ${commentsSample.slice(0, 10).map(comment => `
+                                    <div class="border-l-4 border-${comment.sentiment === 'positive' ? 'green' : comment.sentiment === 'negative' ? 'red' : 'gray'}-400 pl-4 py-2">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <span class="font-medium text-gray-900">${comment.author}</span>
+                                            <span class="text-sm text-gray-500">${comment.sentiment}</span>
+                                        </div>
+                                        <p class="text-gray-700 text-sm">${comment.text}</p>
+                                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                            <span>${comment.like_count} likes</span>
+                                            <span>${comment.reply_count} replies</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                    </main>
+                </div>
+            `;
+        }
+
+        // Main app functions
+        function renderApp() {
+            const app = document.getElementById('app');
+            
+            switch (appState.currentPage) {
+                case 'loading':
+                    app.innerHTML = renderLoadingPage();
+                    break;
+                case 'report':
+                    app.innerHTML = renderReportPage(appState.analysisData);
+                    break;
+                default:
+                    app.innerHTML = renderHomePage();
+            }
+            
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        async function startAnalysis() {
+            const videoUrl = document.getElementById('videoUrl').value;
+            const creatorUrl = document.getElementById('creatorUrl').value;
+            const maxComments = parseInt(document.getElementById('maxComments').value);
+            const errorDiv = document.getElementById('errorMessage');
+
+            // Clear previous errors
+            errorDiv.classList.add('hidden');
+            errorDiv.textContent = '';
+
+            // Validate input
+            if (!videoUrl) {
+                showError('Please enter a YouTube video URL');
+                return;
+            }
+
+            if (!isValidYouTubeURL(videoUrl)) {
+                showError('Please enter a valid YouTube URL');
+                return;
+            }
+
+            // Start analysis
+            appState.currentPage = 'loading';
+            appState.loading = true;
+            renderApp();
+
+            try {
+                // Step 1: Analyze video
+                const analysisResult = await analyzeVideo(videoUrl, maxComments);
+                
+                if (analysisResult.status === 'success') {
+                    // Step 2: Get detailed report
+                    const videoId = extractVideoId(videoUrl);
+                    const reportData = await getVideoReport(videoId);
+                    
+                    appState.analysisData = reportData;
+                    appState.currentPage = 'report';
+                    appState.loading = false;
+                    renderApp();
+                    
+                    // Initialize charts after rendering
+                    setTimeout(initializeCharts, 100);
+                } else {
+                    throw new Error(analysisResult.message || 'Analysis failed');
+                }
+            } catch (error) {
+                appState.error = error.message;
+                appState.currentPage = 'home';
+                appState.loading = false;
+                renderApp();
+                showError(error.message);
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function goHome() {
+            appState.currentPage = 'home';
+            appState.analysisData = null;
+            appState.loading = false;
+            appState.error = null;
+            renderApp();
+        }
+
+        function downloadReport() {
+            // Simple download functionality
+            const data = appState.analysisData;
+            const reportText = `
+YouTube Comment Analysis Report
+==============================
+
+Video: ${data.video.title}
+Total Comments: ${data.summary.total_comments_analyzed}
+Main Vibe: ${data.video.main_vibe}
+Vibe Score: ${data.video.vibe_score}
+
+Sentiment Distribution:
+- Positive: ${data.summary.sentiment_distribution.positive}%
+- Negative: ${data.summary.sentiment_distribution.negative}%
+- Neutral: ${data.summary.sentiment_distribution.neutral}%
+
+Topics:
+${data.topics.map(topic => `- ${topic.name}: ${topic.percentage}% (${topic.count} comments)`).join('\n')}
+            `;
+            
+            const blob = new Blob([reportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'comment-analysis-report.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function initializeCharts() {
+            if (!appState.analysisData) return;
+
+            const data = appState.analysisData;
+            const sentimentData = data.summary.sentiment_distribution;
+
+            // Sentiment Chart
+            const sentimentCtx = document.getElementById('sentimentChart');
+            if (sentimentCtx) {
+                new Chart(sentimentCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Positive', 'Negative', 'Neutral'],
+                        datasets: [{
+                            data: [sentimentData.positive, sentimentData.negative, sentimentData.neutral],
+                            backgroundColor: ['#10B981', '#EF4444', '#6B7280'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            renderApp();
+        });
+    </script>
+</body>
+</html>

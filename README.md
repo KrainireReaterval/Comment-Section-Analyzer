@@ -1,86 +1,228 @@
-We are building a web app for youtubers and youtube users. They paste URL of one video, and will be able to view a report of that video's comment section. Youtubers can also paste their youtube information and profile page in Personalization center for influence building suggestions.
+# YouTube Comment Section Analyzer
 
-The web app should include:
+A comprehensive web application that analyzes YouTube video comment sections using AI-powered sentiment analysis, topic extraction, and trend visualization.
 
-1. Comment scraper: able to pull large scale (e.g. 10k comments) data from youtube comment section.
+## 🚀 Features
 
-automatically load comment scraper's data to comment analysis;
+- **AI-Powered Analysis**: Advanced sentiment analysis and topic extraction using machine learning
+- **Large Scale Processing**: Analyze up to 10,000 comments per video
+- **Interactive Visualizations**: Beautiful charts and graphs for data insights
+- **Real-time Processing**: Get instant insights from comment analysis
+- **Trend Analysis**: See how comments evolve over time
+- **Controversy Detection**: Identify controversial topics and discussions
+- **Responsive Design**: Works perfectly on desktop and mobile devices
 
-2. Comment analysis:
+## 🛠️ Tech Stack
 
-connect API, import scraper's data to AI.
-AI need to: answer basic info << pull information from URL 
-            use scraper's data to finish labeling, categorization, and output data for visualization
+### Backend
+- **Flask**: Python web framework
+- **SQLAlchemy**: Database ORM
+- **YouTube Data API**: Comment scraping
+- **OpenAI API**: AI analysis and topic extraction
+- **Redis**: Task queue management
 
-    Basic Info
-        How many comments?
-        How long is the video?
-        How long has the video posted?
-        What is the video mainly about?
-        Show the trends of comments from time scale 
-            Two perspective must include in this chart:
-            e.g.0.2.1 2018 = 10 comments,2019 = 320 comments,2020 = 1320 comments (line chart)
-            2.g.0.2.2 2018 + 10 comments,2019 + 310 comments,2020 + 1000 comments (bar chart)
+### Frontend
+- **Vanilla JavaScript**: No framework dependencies
+- **Tailwind CSS**: Utility-first CSS framework
+- **Chart.js**: Interactive data visualization
+- **Lucide Icons**: Beautiful icon library
 
-    Three examples
-        e.g.1 in a political video, there are people talking about "democrats vs republicans", "China", "Racism", "Immigrants", "Donald Trump"  
-        e.g.2 in a cooking video, there are people talking about "love", "follow up", "hate".
-        e.g.3 in a educational video, there are people talking about "quant careers", "people in quants", "wealth"
+## 📋 Prerequisites
 
-    Label these comments by their factors:
-        e.g.3.1 "Quant people are all asian nerds." --> This commment discuss about #people, #quant, #ethinicity, #career, #socialperformance #peopleinquant #quantcareers
-        e.g.2.1 "This is not real italian food, it's french!" --> This comment talks about #food, #foodorigin, #country, #french, #italian, #frenchanditalian 
-        e.g.1.1 "Donald Trump is so egotistic. He being a president is no good for USA." --> This commment shows #USAPresident, #politics, #DonaldTrump, #personality, #personalitydisorder
-        
-        The rule of labeling:
-            General rules: fore example, #food, #politics, #career, #people
-            Specific rules: for example, #peopleinquant, #DonaldTrump 
-            Sentiment analysis: #positive #negative #neutral
-        
-        Prioritization of labels:
-            General rules are used for for general categorization, visualized in final output as pie chart.
-            If comments related to a specific topic appeared in over 35% of comment section, then include this specific topic in the pie chart with general rules.
-            Sentiment analysis have
-            
-    Categorize these commments by labels:
-        What are each categories discussing about?
-            e.g.1 output should be: 
-                People in e.g.1 videos are talking about:
-                    "democrats": 1299 comments, 28% holds positive attitude, 42% holds negative attitude, 30% holds neutral attitude
-                    "republicans": 1299 comments, 72% holds positive attitude, 28% holds negative attitude
-                    "China": 82 comments, 40% holds positive attitude, 45% holds negative attitude, 15% holds neutral attitude
-                    "Racism": 190 comments, 21% holds positive attitude, 79% holds negative attitude
-                    "Immigrants": 404 comments, 23% holds positive attitude, 77% holds negative attitude
-                    "Donald Trump": : 2217 comments, 38% holds positive attitude, 62% holds negative attitude
+- Python 3.8+
+- Node.js (for frontend dependencies)
+- YouTube Data API key
+- OpenAI API key
 
-        Among each topics:
-            How many comments are positive, and how many are negative? 
-                Use sentiment analysis
-                e.g.3.1. "Quantitative analysis is a highly competitive and interesting job" vs "Quant is tiring"
-                e.g.3.2. "Quant people are intelligence and rich" vs "Quant people are all asian nerds."
-            What is the controversy rate?
-                num_reply_in_stack = the amount of comment in the video that has over 100 replies
-                controversy rate = (num_reply_in_stack / num_all_comments) * 100%
+## 🚀 Quick Start
 
-3. Visualization
+### 1. Backend Setup
 
-automatically import data from comment analysis
+```bash
+# Navigate to backend directory
+cd backend
 
-definition: pie chart represent percentage, bar chart represent numbers, and line chart represent trends, unless claimed otherwise.
+# Install Python dependencies
+pip install -r requirements.txt
 
-Call: 
-    Basic Info 
-        Comment numbers
-        Video length
-        Video post date
-        Video main content
-        Trends of comments from time scale 
-            Two perspective must include in this chart:
-            e.g.0.2.1 2018 = 10 comments,2019 = 320 comments,2020 = 1320 comments (line chart)
-            2.g.0.2.2 2018 + 10 comments,2019 + 310 comments,2020 + 1000 comments (bar chart)
-    Categories 
-        What are each categories discussing about? in pie chart
-        Categories' comments number in bar chart
-        Each categories' comment attitude in pie chart with numbers of comments
-        Each categories' controversy rate
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your API keys
+
+# Initialize database
+python -c "from app import create_app, db; create_app().app_context().push(); db.create_all()"
+
+# Start backend server
+python run.py
+```
+
+### 2. Frontend Setup
+
+```bash
+# Navigate to project root
+cd /Users/wangxiansen/Desktop/Comment-Section-Analyzer
+
+# Start frontend server
+python start_server.py
+```
+
+### 3. Access the Application
+
+Open your browser and go to: `http://localhost:8080`
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file in the backend directory:
+
+```env
+# YouTube API
+YOUTUBE_API_KEY=your_youtube_api_key_here
+
+# OpenAI API
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Database
+DATABASE_URL=sqlite:///youtube_comments.db
+
+# Redis (optional)
+REDIS_URL=redis://localhost:6379/0
+
+# Security
+SECRET_KEY=your_secret_key_here
+```
+
+### API Configuration
+
+The frontend is configured to connect to the backend API at `http://localhost:5000/api`. If your backend runs on a different port, update the `API_BASE_URL` in `index.html`.
+
+## 📊 How It Works
+
+### 1. Video Analysis Process
+
+1. **URL Input**: User pastes a YouTube video URL
+2. **Video Validation**: System validates the URL and extracts video ID
+3. **Comment Scraping**: Backend scrapes comments using YouTube Data API
+4. **AI Analysis**: Comments are analyzed for sentiment and topics
+5. **Data Processing**: Results are processed and stored in database
+6. **Visualization**: Frontend displays interactive charts and insights
+
+### 2. Analysis Features
+
+- **Sentiment Analysis**: Categorizes comments as positive, negative, or neutral
+- **Topic Extraction**: Identifies main discussion topics using AI
+- **Trend Analysis**: Shows comment patterns over time
+- **Controversy Detection**: Identifies highly debated topics
+- **Statistical Insights**: Provides comprehensive metrics and percentages
+
+## 🎨 User Interface
+
+### Homepage
+- Clean, modern design with gradient background
+- URL input form for video and creator profile
+- Configurable comment limit (500-10,000)
+- Feature highlights and benefits
+
+### Analysis Report
+- **Video Information**: Title, views, likes, comments, duration
+- **Sentiment Overview**: Overall sentiment distribution
+- **Topic Analysis**: Main discussion topics with percentages
+- **Sample Comments**: Representative comments with sentiment labels
+- **Interactive Charts**: Doughnut charts for sentiment distribution
+
+## 🔌 API Endpoints
+
+### Backend API
+
+- `POST /api/analyze` - Analyze a video's comments
+- `GET /api/video/<video_id>/report` - Get detailed analysis report
+- `GET /api/videos` - List all analyzed videos
+- `GET /api/health` - Health check endpoint
+
+### Request/Response Examples
+
+**Analyze Video:**
+```json
+POST /api/analyze
+{
+  "video_url": "https://www.youtube.com/watch?v=VIDEO_ID",
+  "max_comments": 1000
+}
+```
+
+**Get Report:**
+```json
+GET /api/video/VIDEO_ID/report
+{
+  "video": { ... },
+  "summary": { ... },
+  "topics": [ ... ],
+  "time_trends": [ ... ],
+  "comments_sample": [ ... ]
+}
+```
+
+## 🎯 Use Cases
+
+- **Content Creators**: Understand audience sentiment and engagement
+- **Marketing Teams**: Analyze brand mentions and customer feedback
+- **Researchers**: Study social media trends and public opinion
+- **Educators**: Analyze discussion patterns in educational content
+
+## 🚀 Deployment
+
+### Production Setup
+
+1. **Backend Deployment**:
+   - Deploy Flask app to cloud platform (Heroku, AWS, etc.)
+   - Set up production database (PostgreSQL recommended)
+   - Configure environment variables
+
+2. **Frontend Deployment**:
+   - Update API_BASE_URL to production backend URL
+   - Deploy static files to CDN or web server
+   - Configure CORS settings
+
+### Docker Support
+
+```dockerfile
+# Backend Dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "run.py"]
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+If you encounter any issues:
+
+1. Check the backend logs for errors
+2. Verify API keys are correctly set
+3. Ensure all dependencies are installed
+4. Check network connectivity
+
+## 🔮 Future Enhancements
+
+- [ ] Real-time comment monitoring
+- [ ] Advanced filtering options
+- [ ] Export to PDF/Excel
+- [ ] Multi-language support
+- [ ] Social media integration
+- [ ] Advanced analytics dashboard
                 
