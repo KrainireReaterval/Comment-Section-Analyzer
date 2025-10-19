@@ -1,108 +1,221 @@
 {
   "tech_stack": [
+    "Python 3.x",
+    "Flask (Web Framework)",
+    "Flask-SQLAlchemy (ORM)",
+    "Flask-CORS",
+    "SQLite (Database)",
+    "Redis (Task Queue)",
+    "YouTube Data API v3",
+    "OpenAI API (GPT for AI Analysis)",
+    "TextBlob/NLTK (Sentiment Analysis)",
     "HTML",
     "JavaScript (Vanilla)",
-    "Python",
-    "Flask",
-    "SQLAlchemy",
     "Tailwind CSS",
-    "Chart.js",
-    "Lucide Icons",
-    "YouTube Data API",
-    "OpenAI API",
-    "Redis",
-    "SQLite"
+    "Chart.js"
   ],
   "features": [
     {
-      "name": "Home Page with Analysis Form",
-      "description": "Main landing page with a form to input YouTube video URL, creator URL (optional), and max comments selection. Includes hero section with feature highlights and responsive design.",
-      "files": ["index.html"]
+      "name": "Health Check API",
+      "description": "Check if the API server is running and healthy",
+      "files": ["backend/app/routes/api.py"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/health": {
+            "get": {
+              "summary": "Health check endpoint",
+              "description": "Returns the status of the API server",
+              "responses": {
+                "200": {
+                  "description": "Server is healthy",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": {"type": "string", "example": "ok"},
+                          "message": {"type": "string", "example": "YouTube Comment Analyzer API is running"}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
     {
-      "name": "YouTube URL Validation",
-      "description": "Validates YouTube video URLs and extracts video IDs from various YouTube URL formats (youtube.com/watch?v= and youtu.be/).",
-      "files": ["index.html"]
+      "name": "Analyze Video API",
+      "description": "Complete video analysis workflow: scrape video info and comments, perform sentiment analysis, extract AI topics, categorize labels, analyze time trends, and calculate controversy rate",
+      "files": ["backend/app/routes/api.py", "backend/app/services/youtube_scraper.py", "backend/app/services/sentiment_analyzer.py", "backend/app/services/ai_analyzer.py", "backend/app/models/database.py"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/analyze": {
+            "post": {
+              "summary": "Analyze a YouTube video",
+              "description": "Scrapes comments from a YouTube video and performs comprehensive analysis",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "required": ["video_url"],
+                      "properties": {
+                        "video_url": {"type": "string", "example": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"},
+                        "max_comments": {"type": "integer", "default": 1000, "maximum": 10000}
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Analysis completed",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": {"type": "string"},
+                          "message": {"type": "string"},
+                          "video_id": {"type": "string"},
+                          "total_comments": {"type": "integer"}
+                        }
+                      }
+                    }
+                  }
+                },
+                "400": {"description": "Bad request"},
+                "404": {"description": "Video not found"},
+                "500": {"description": "Internal server error"}
+              }
+            }
+          }
+        }
+      }
     },
     {
-      "name": "Video Analysis API Integration",
-      "description": "Frontend function to call backend API to analyze YouTube video comments. Sends video URL and max comments parameters to the backend for processing.",
-      "files": ["index.html"]
+      "name": "Get Video Report API",
+      "description": "Retrieve complete analysis report for a video including basic info, overall vibe, topic analysis, time trends, and visualization data",
+      "files": ["backend/app/routes/api.py", "backend/app/services/trend_analyzer.py", "backend/app/models/database.py"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/video/{video_id}/report": {
+            "get": {
+              "summary": "Get video analysis report",
+              "parameters": [
+                {
+                  "name": "video_id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {"type": "string"}
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Report retrieved",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "video": {"type": "object"},
+                          "summary": {"type": "object"},
+                          "topics": {"type": "array"},
+                          "time_trends": {"type": "object"},
+                          "comments_sample": {"type": "array"}
+                        }
+                      }
+                    }
+                  }
+                },
+                "404": {"description": "Video not found"}
+              }
+            }
+          }
+        }
+      }
     },
     {
-      "name": "Loading Page with Progress Indicator",
-      "description": "Displays animated loading screen with progress bar while comment analysis is being processed. Shows status messages and animated brain icon.",
-      "files": ["index.html"]
+      "name": "Get All Videos API",
+      "description": "Retrieve list of all analyzed videos ordered by creation date",
+      "files": ["backend/app/routes/api.py", "backend/app/models/database.py"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/videos": {
+            "get": {
+              "summary": "Get all analyzed videos",
+              "responses": {
+                "200": {
+                  "description": "List of videos",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "total": {"type": "integer"},
+                          "videos": {"type": "array"}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
     {
-      "name": "Analysis Report Page",
-      "description": "Comprehensive report page displaying video information, sentiment analysis results, topic distribution, and sample comments. Includes interactive charts and visualizations.",
-      "files": ["index.html"]
-    },
-    {
-      "name": "Sentiment Distribution Chart",
-      "description": "Doughnut chart visualization showing the distribution of positive, negative, and neutral sentiments across analyzed comments using Chart.js.",
-      "files": ["index.html"]
-    },
-    {
-      "name": "Report Download Functionality",
-      "description": "Allows users to download the analysis report as a plain text file with all key metrics, sentiment distribution, and topic breakdown.",
-      "files": ["index.html"]
-    },
-    {
-      "name": "State Management",
-      "description": "Global application state management handling current page, analysis data, loading state, and error handling.",
-      "files": ["index.html"]
-    },
-    {
-      "name": "Backend API Routes",
-      "description": "Flask API endpoints for analyzing videos and retrieving video reports. Handles POST requests for analysis and GET requests for reports.",
-      "files": ["backend/app/routes/api.py"]
-    },
-    {
-      "name": "YouTube Comment Scraper",
-      "description": "Service to scrape YouTube comments using YouTube Data API. Fetches video metadata, comments, and replies with pagination support.",
-      "files": ["backend/app/services/youtube_scraper.py"]
-    },
-    {
-      "name": "AI-Powered Sentiment Analysis",
-      "description": "Uses OpenAI API to perform advanced sentiment analysis on comments, extracting emotions, topics, and controversy detection.",
-      "files": ["backend/app/services/ai_analyzer.py"]
-    },
-    {
-      "name": "Basic Sentiment Analyzer",
-      "description": "Provides basic sentiment classification (positive, negative, neutral) for comments as a fallback or quick analysis option.",
-      "files": ["backend/app/services/sentiment_analyzer.py"]
-    },
-    {
-      "name": "Trend Analysis",
-      "description": "Analyzes comment trends over time, identifying patterns in sentiment and topic evolution throughout the comment section.",
-      "files": ["backend/app/services/trend_analyzer.py"]
-    },
-    {
-      "name": "Number Formatting Utility",
-      "description": "Formats large numbers into readable format (K for thousands, M for millions) for display in the UI.",
-      "files": ["index.html"]
-    },
-    {
-      "name": "Date Formatting Utility",
-      "description": "Converts ISO date strings into human-readable format for displaying video publication dates and comment timestamps.",
-      "files": ["index.html"]
-    },
-    {
-      "name": "Frontend HTTP Server",
-      "description": "Simple Python HTTP server with CORS support to serve the frontend HTML application on port 8080.",
-      "files": ["start_server.py"]
-    },
-    {
-      "name": "Database Models",
-      "description": "SQLAlchemy ORM models for storing video data, comments, analysis results, and user sessions in SQLite database.",
-      "files": ["backend/app/models"]
-    },
-    {
-      "name": "Error Handling and Validation",
-      "description": "Comprehensive error handling for invalid URLs, API failures, and network errors with user-friendly error messages displayed in the UI.",
-      "files": ["index.html"]
+      "name": "Get Controversy Statistics API",
+      "description": "Get controversy statistics for a video, including comments with high reply counts (>100 replies)",
+      "files": ["backend/app/routes/api.py", "backend/app/models/database.py", "backend/config.py"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/video/{video_id}/controversy": {
+            "get": {
+              "summary": "Get controversy statistics",
+              "parameters": [
+                {
+                  "name": "video_id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {"type": "string"}
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Controversy stats",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "video_id": {"type": "string"},
+                          "total_comments": {"type": "integer"},
+                          "high_reply_comments_count": {"type": "integer"},
+                          "controversy_rate": {"type": "number"},
+                          "threshold": {"type": "integer"},
+                          "high_reply_comments": {"type": "array"}
+                        }
+                      }
+                    }
+                  }
+                },
+                "404": {"description": "Video not found"}
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

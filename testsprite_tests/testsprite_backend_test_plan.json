@@ -1,0 +1,22 @@
+[
+  {
+    "id": "TC001",
+    "title": "post api analyze video comments",
+    "description": "Test the POST /api/analyze endpoint to ensure it accepts a valid YouTube video URL and max comments parameter, triggers comment scraping, AI sentiment analysis, and returns a successful analysis response."
+  },
+  {
+    "id": "TC002",
+    "title": "get api retrieve analysis report",
+    "description": "Test the GET /api/report endpoint to verify it returns the correct analysis report data including video info, sentiment overview, topics, and sample comments for a given video ID."
+  },
+  {
+    "id": "TC003",
+    "title": "get api list all analyses",
+    "description": "Test the GET /api/analyses endpoint to ensure it returns a list of all previous video analyses stored in the database with relevant metadata."
+  },
+  {
+    "id": "TC004",
+    "title": "get api health check",
+    "description": "Test the GET /api/health endpoint to confirm the backend service is running and returns a healthy status response."
+  }
+]

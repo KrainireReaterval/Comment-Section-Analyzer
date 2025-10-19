@@ -1,8 +1,9 @@
 {
   "status": "commited",
-  "type": "frontend",
+  "type": "backend",
   "scope": "codebase",
-  "localEndpoint": "http://localhost:8080",
+  "localEndpoint": "http://localhost:5001",
+  "backendAuthType": "public",
   "executionArgs": {
     "projectName": "Comment-Section-Analyzer",
     "projectPath": "/Users/wangxiansen/Desktop/Comment-Section-Analyzer",
@@ -12,5 +13,5 @@
       "API_KEY": "sk-user--Y1DowjVWSRrgbRO2wiZJBfmnCXQMtu73KaSQJF2DxhIPF0Hgj6jHBbwPo7PaSyp8Uhv-H_8c7ER2nRNaiIMqcb5cyBlLqTCueYDvu0hKgWlHEEod3K3oxWXcSedWdndLZU"
     }
   },
-  "proxy": "http://66245a71-adf0-4a21-86d1-fffa0276501e:I0sf0m6FaGYKnnz9rFS5ccEBPBtWZm83@tun.testsprite.com:8080"
+  "proxy": "http://a546af33-34b8-4846-878e-d0619b00789c:kiscnAdrsnt1bMMclGWhLddWosZEAu8g@tun.testsprite.com:8080"
 }
